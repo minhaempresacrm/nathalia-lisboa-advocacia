@@ -332,7 +332,11 @@
 
           <nav class="mt-5 space-y-1" id="mobile-nav-links">
             <button type="button" onclick="switchAdminView('dashboard'); toggleMobileMenu();" data-nav="dashboard" class="admin-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
-              <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Visão Geral & Alertas
+              <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Visão Geral
+            </button>
+            <button type="button" onclick="switchAdminView('caixa-entrada'); toggleMobileMenu();" data-nav="caixa-entrada" class="admin-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+              <span class="flex items-center gap-3"><i data-lucide="inbox" class="w-4 h-4"></i> Caixa de Entrada</span>
+              <span id="badge-duvidas-mobile" class="hidden px-2 py-0.5 text-[10px] rounded-full bg-amber-400 text-slate-950 font-extrabold">0</span>
             </button>
             <button type="button" onclick="switchAdminView('clientes'); toggleMobileMenu();" data-nav="clientes" class="admin-nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
               <i data-lucide="users" class="w-4 h-4"></i> CRM de Clientes & Anexos
@@ -385,6 +389,10 @@
         <div class="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-[#E5C888]/60">Gestão do Escritório</div>
         <button type="button" onclick="switchAdminView('dashboard')" data-nav="dashboard" class="admin-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
           <span class="flex items-center gap-3"><i data-lucide="layout-dashboard" class="w-4 h-4"></i> Dashboard em Tempo Real</span>
+        </button>
+
+        <button type="button" onclick="switchAdminView('caixa-entrada')" data-nav="caixa-entrada" class="admin-nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition">
+          <span class="flex items-center gap-3"><i data-lucide="inbox" class="w-4 h-4"></i> Caixa de Entrada</span>
           <span id="badge-duvidas-nav" class="hidden px-2 py-0.5 text-[10px] rounded-full bg-amber-400 text-slate-950 font-extrabold">0</span>
         </button>
 
@@ -534,25 +542,6 @@
             </div>
           </div>
 
-          <!-- Alerta de Dúvidas de Clientes no Portal (Com Atalho WhatsApp) -->
-          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-[#C8A25A]/50 shadow-xs p-5">
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
-              <div class="flex items-center gap-2.5">
-                <span class="w-9 h-9 rounded-xl bg-[#5C1618] text-[#E5C888] flex items-center justify-center">
-                  <i data-lucide="message-circle-question" class="w-5 h-5"></i>
-                </span>
-                <div>
-                  <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
-                    Dúvidas dos Clientes sobre Andamentos (Portal Externo)
-                  </h2>
-                  <p class="text-xs text-slate-500">Responda diretamente no WhatsApp com o contexto da dúvida pré-preenchido ou registe a resposta no Portal.</p>
-                </div>
-              </div>
-              <span id="duvidas-pendentes-pill" class="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900">0 pendentes</span>
-            </div>
-            <div id="dashboard-duvidas-list" class="space-y-3"></div>
-          </div>
-
           <!-- Gráficos Interativos Motion Graphics -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-stone-200/80 dark:border-slate-800 p-5 shadow-xs">
@@ -582,6 +571,36 @@
               </div>
               <div id="dashboard-prazos-list" class="space-y-2.5 max-h-60 overflow-y-auto pr-1"></div>
             </div>
+          </div>
+        </section>
+
+        <!-- ===================================================================
+             VIEW A2: CAIXA DE ENTRADA (DÚVIDAS DOS CLIENTES SOBRE ANDAMENTOS)
+             =================================================================== -->
+        <section id="view-caixa-entrada" class="admin-view hidden animate-view space-y-6">
+          <div class="bg-white dark:bg-slate-900 rounded-2xl border border-[#C8A25A]/50 shadow-xs p-5 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-stone-200 dark:border-slate-800">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-[#5C1618] text-[#E5C888] flex items-center justify-center shadow-sm">
+                  <i data-lucide="inbox" class="w-5 h-5"></i>
+                </span>
+                <div>
+                  <h2 class="text-base sm:text-lg font-extrabold text-slate-900 dark:text-white">
+                    Caixa de Entrada — Dúvidas dos Clientes sobre Andamentos
+                  </h2>
+                  <p class="text-xs text-slate-500">Mensagens enviadas pelos clientes no Portal Externo. Responda em 1 clique no WhatsApp com o contexto pré-preenchido ou registe a resposta no Portal.</p>
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <select id="filter-inbox-status" onchange="renderCaixaEntradaView()" class="px-3 py-2 rounded-xl border border-stone-200 dark:border-slate-700 bg-stone-50 dark:bg-slate-800 text-xs font-bold">
+                  <option value="">Todas as Mensagens</option>
+                  <option value="Pendente">⏳ Somente Pendentes</option>
+                  <option value="Respondida">✅ Somente Respondidas</option>
+                </select>
+                <span id="duvidas-pendentes-pill" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900">0 pendentes</span>
+              </div>
+            </div>
+            <div id="dashboard-duvidas-list" class="space-y-3"></div>
           </div>
         </section>
 
@@ -1347,6 +1366,11 @@
         bDuv.textContent = duvPend;
         bDuv.classList.toggle('hidden', duvPend === 0);
       }
+      const bDuvMob = document.getElementById('badge-duvidas-mobile');
+      if (bDuvMob) {
+        bDuvMob.textContent = duvPend;
+        bDuvMob.classList.toggle('hidden', duvPend === 0);
+      }
       const bCli = document.getElementById('badge-clientes-nav');
       if (bCli) bCli.textContent = APP.admin.clientes.length;
       const bKan = document.getElementById('badge-kanban-nav');
@@ -1367,7 +1391,8 @@
       });
 
       const titles = {
-        dashboard: ['Dashboard Geral em Tempo Real', 'Métricas consolidadas, prazos críticos da semana e alertas de dúvidas dos clientes'],
+        dashboard: ['Dashboard Geral em Tempo Real', 'Métricas consolidadas, prazos críticos da semana e gráficos do escritório'],
+        'caixa-entrada': ['Caixa de Entrada — Dúvidas dos Clientes', 'Mensagens e dúvidas sobre andamentos enviadas pelos clientes no Portal Externo'],
         clientes: ['CRM de Clientes, WhatsApp & Ficheiros (Storage)', 'Cadastro completo, notas internas sigilosas e gestão de anexos com permissão por cliente'],
         pipeline: ['Pipeline Jurídico (7 Etapas) & Tradutor IA', 'Acompanhamento de fases processuais e registo de despachos com tradução automática'],
         datajud: ['Integração Oficial API Pública DataJud (CNJ)', 'Consulta por número CNJ e importação automática de movimentos para a linha do tempo'],
@@ -1385,6 +1410,7 @@
     function renderCurrentAdminView() {
       updateSidebarBadges();
       if (APP.currentView === 'dashboard') renderDashboardView();
+      else if (APP.currentView === 'caixa-entrada') renderCaixaEntradaView();
       else if (APP.currentView === 'clientes') renderClientesView();
       else if (APP.currentView === 'pipeline') renderPipelineView();
       else if (APP.currentView === 'datajud') renderDataJudView();
@@ -1395,38 +1421,22 @@
     }
 
     // -------------------------------------------------------------------------
-    // VIEW A: DASHBOARD GERAL EM TEMPO REAL + DRILLDOWN + ALERTAS WHATSAPP
+    // VIEW A2: CAIXA DE ENTRADA (DÚVIDAS DOS CLIENTES SOBRE ANDAMENTOS)
     // -------------------------------------------------------------------------
-    function renderDashboardView() {
-      const clientesAtivos = APP.admin.clientes.filter(c => c.status_cliente !== 'Inativo').length;
-      const processosCurso = APP.admin.processos.filter(p => p.status_processo !== 'Arquivado').length;
-
-      const receitasPagas = APP.admin.financeiro
-        .filter(f => f.tipo === 'Receita' && f.status === 'Pago')
-        .reduce((acc, f) => acc + Number(f.valor || 0), 0);
-
-      const receitasPendentes = APP.admin.financeiro
-        .filter(f => f.tipo === 'Receita' && f.status !== 'Pago')
-        .reduce((acc, f) => acc + Number(f.valor || 0), 0);
-
-      const prazosProcessos = APP.admin.processos.filter(p => p.proximo_prazo);
-      const tarefasPendentes = APP.admin.tarefas_kanban.filter(t => t.coluna !== 'Concluído' && t.data_vencimento);
-
-      document.getElementById('kpi-total-clientes').textContent = clientesAtivos;
-      document.getElementById('kpi-total-processos').textContent = processosCurso;
-      document.getElementById('kpi-fin-recebido').textContent = fmtMoney(receitasPagas);
-      document.getElementById('kpi-fin-areceber').textContent = `A Receber: ${fmtMoney(receitasPendentes)}`;
-      document.getElementById('kpi-prazos-criticos').textContent = prazosProcessos.length + tarefasPendentes.length;
-
-      // Render Dúvidas dos Clientes
+    function renderCaixaEntradaView() {
       const duvidasBox = document.getElementById('dashboard-duvidas-list');
+      if (!duvidasBox) return;
+      const statusFilter = document.getElementById('filter-inbox-status')?.value || '';
       const pendentesCount = APP.admin.duvidas.filter(d => d.status === 'Pendente').length;
-      document.getElementById('duvidas-pendentes-pill').textContent = `${pendentesCount} pendente(s)`;
+      const pill = document.getElementById('duvidas-pendentes-pill');
+      if (pill) pill.textContent = `${pendentesCount} pendente(s)`;
 
-      if (APP.admin.duvidas.length === 0) {
-        duvidasBox.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">Nenhuma dúvida enviada pelos clientes até o momento.</div>`;
+      const list = APP.admin.duvidas.filter(d => !statusFilter || d.status === statusFilter);
+
+      if (list.length === 0) {
+        duvidasBox.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center">Nenhuma mensagem encontrada na Caixa de Entrada para este filtro.</div>`;
       } else {
-        duvidasBox.innerHTML = APP.admin.duvidas.map(d => {
+        duvidasBox.innerHTML = list.map(d => {
           const cli = APP.admin.clientes.find(c => c.id === d.cliente_id) || {};
           const proc = APP.admin.processos.find(p => p.id === d.processo_id) || {};
           const andam = APP.admin.andamentos.find(a => a.id === d.andamento_id) || {};
@@ -1459,6 +1469,34 @@
           `;
         }).join('');
       }
+      refreshIcons();
+    }
+
+    // -------------------------------------------------------------------------
+    // VIEW A: DASHBOARD GERAL EM TEMPO REAL + DRILLDOWN + ALERTAS WHATSAPP
+    // -------------------------------------------------------------------------
+    function renderDashboardView() {
+      const clientesAtivos = APP.admin.clientes.filter(c => c.status_cliente !== 'Inativo').length;
+      const processosCurso = APP.admin.processos.filter(p => p.status_processo !== 'Arquivado').length;
+
+      const receitasPagas = APP.admin.financeiro
+        .filter(f => f.tipo === 'Receita' && f.status === 'Pago')
+        .reduce((acc, f) => acc + Number(f.valor || 0), 0);
+
+      const receitasPendentes = APP.admin.financeiro
+        .filter(f => f.tipo === 'Receita' && f.status !== 'Pago')
+        .reduce((acc, f) => acc + Number(f.valor || 0), 0);
+
+      const prazosProcessos = APP.admin.processos.filter(p => p.proximo_prazo);
+      const tarefasPendentes = APP.admin.tarefas_kanban.filter(t => t.coluna !== 'Concluído' && t.data_vencimento);
+
+      document.getElementById('kpi-total-clientes').textContent = clientesAtivos;
+      document.getElementById('kpi-total-processos').textContent = processosCurso;
+      document.getElementById('kpi-fin-recebido').textContent = fmtMoney(receitasPagas);
+      document.getElementById('kpi-fin-areceber').textContent = `A Receber: ${fmtMoney(receitasPendentes)}`;
+      document.getElementById('kpi-prazos-criticos').textContent = prazosProcessos.length + tarefasPendentes.length;
+
+      renderCaixaEntradaView();
 
       // Render Prazos Críticos da Semana
       const prazosList = document.getElementById('dashboard-prazos-list');
